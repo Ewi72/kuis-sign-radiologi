@@ -205,6 +205,46 @@ function checkAnswer() {
     "</strong><br>Jawaban: " +
     String.fromCharCode(65 + q.answer) + ". " +
     q.options[q.answer] +
-    "<br><br><strong>Pembahasan:</strong
-    window.checkAnswer = checkAnswer;
-  window.nextQuestion = nextQuestion;
+    "<br><br><strong>Pembahasan:</strong> " +
+    q.explanation;
+
+document.getElementById("checkBtn").disabled = true;
+document.getElementById("nextBtn").hidden = false;
+}
+
+function nextQuestion() {
+    current++;
+
+    if (current < questions.length) {
+        loadQuestion();
+    } else {
+        document.getElementById("question").innerHTML = "Kuis selesai!";
+        document.getElementById("options").innerHTML = "";
+        document.getElementById("feedback").style.display = "none";
+        document.getElementById("checkBtn").hidden = true;
+        document.getElementById("nextBtn").hidden = true;
+
+        const result = document.getElementById("result");
+        result.hidden = false;
+        result.innerHTML =
+            "Skor kamu: " + score + " dari " + questions.length;
+
+        document.getElementById("restartBtn").hidden = false;
+    }
+}
+
+function restartQuiz() {
+    current = 0;
+    score = 0;
+
+    document.getElementById("result").hidden = true;
+    document.getElementById("restartBtn").hidden = true;
+
+    loadQuestion();
+}
+
+window.checkAnswer = checkAnswer;
+window.nextQuestion = nextQuestion;
+window.restartQuiz = restartQuiz;
+
+loadQuestion();
