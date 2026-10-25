@@ -216,7 +216,7 @@ function nextQuestion() {
     current++;
 
     if (current < questions.length) {
-        loadQuestion();
+        showQuestion();
     } else {
         document.getElementById("question").innerHTML = "Kuis selesai!";
         document.getElementById("options").innerHTML = "";
@@ -240,11 +240,11 @@ function restartQuiz() {
     document.getElementById("result").hidden = true;
     document.getElementById("restartBtn").hidden = true;
 
-    loadQuestion();
+    showQuestion();
 }
 
 window.checkAnswer = checkAnswer;
 window.nextQuestion = nextQuestion;
 window.restartQuiz = restartQuiz;
 
-loadQuestion();
+showQuestion();
