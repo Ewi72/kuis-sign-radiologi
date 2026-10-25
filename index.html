@@ -1,1 +1,209 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuis Sign Radiologi</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #fff5f5;
+  color: #333;
+  margin: 0;
+  padding: 20px;
+}
+.container {
+  max-width: 750px;
+  margin: auto;
+  background: white;
+  padding: 24px;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px #ddd;
+}
+h1 { color: #b83267; text-align: center; }
+.subtitle { text-align: center; color: #666; }
+.badge {
+  display: inline-block;
+  background: #fce7f3;
+  color: #9d174d;
+  padding: 6px 10px;
+  border-radius: 20px;
+}
+.question { font-size: 19px; font-weight: bold; margin-top: 20px; }
+.option {
+  display: block;
+  padding: 12px;
+  margin: 9px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.option:hover { background: #fff1f5; }
+button {
+  border: none;
+  background: #be185d;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 12px;
+}
+button:disabled { background: #aaa; cursor: not-allowed; }
+#feedback {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  display: none;
+  line-height: 1.6;
+}
+.correct { background: #dcfce7; }
+.incorrect { background: #fee2e2; }
+#result { font-size: 20px; font-weight: bold; }
+footer { text-align: center; color: #777; margin-top: 24px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🩻 Kuis Sign-Sign Radiologi</h1>
+  <p class="subtitle">Latihan pengenalan tanda radiologi</p>
+  <p><span class="badge" id="category"></span></p>
+  <p id="progress"></p>
+  <div class="question" id="question"></div>
+  <div id="options"></div>
+  <div id="feedback"></div>
+  <button id="checkBtn" onclick="checkAnswer()">Periksa Jawaban</button>
+  <button id="nextBtn" onclick="nextQuestion()" hidden>Soal Berikutnya →</button>
+  <div id="result" hidden></div>
+  <button id="restartBtn" onclick="restartQuiz()" hidden>Ulangi Kuis</button>
+  <footer>Materi edukasi radiologi. Interpretasi klinis harus mempertimbangkan seluruh temuan dan kondisi pasien.</footer>
+</div>
+<script>
+const questions = [
+ {
+  category:"Thoraks",
+  q:"Pada foto toraks, tampak opasitas berbentuk segitiga di hemitoraks kanan dengan elevasi fisura minor dan pergeseran fisura ke arah lesi. Temuan ini paling sesuai dengan:",
+  options:["Silhouette sign","Golden S sign","Luftsichel sign","Deep sulcus sign"],
+  answer:1,
+  explanation:"Golden S sign merupakan deformasi fisura minor akibat kolaps lobus atas kanan, sering berkaitan dengan obstruksi bronkus dan massa sentral."
+ },
+ {
+  category:"Thoraks",
+  q:"Pada foto toraks pasien posisi supine, terdapat sudut kostofrenikus lateral yang tampak sangat dalam dan hiperlusen. Tanda ini disebut:",
+  options:["Air bronchogram sign","Deep sulcus sign","Cervicothoracic sign","Westermark sign"],
+  answer:1,
+  explanation:"Deep sulcus sign dapat menunjukkan pneumotoraks pada foto toraks posisi supine."
+ },
+ {
+  category:"Thoraks",
+  q:"Pada foto toraks, batas jantung kanan menghilang akibat opasitas di paru kanan bagian medial. Prinsip tanda radiologi yang digunakan adalah:",
+  options:["Silhouette sign","Air crescent sign","Scimitar sign","Luftsichel sign"],
+  answer:0,
+  explanation:"Silhouette sign terjadi ketika dua struktur dengan densitas serupa bersentuhan sehingga batas di antaranya tidak terlihat. Hilangnya batas jantung kanan dapat menunjukkan kelainan lobus tengah kanan."
+ },
+ {
+  category:"Thoraks",
+  q:"Pada foto toraks, tampak hiperlusensi berbentuk bulan sabit di antara arkus aorta dan lobus kiri atas yang kolaps. Tanda ini dikenal sebagai:",
+  options:["Golden S sign","Luftsichel sign","Westermark sign","Hampton hump"],
+  answer:1,
+  explanation:"Luftsichel sign adalah hiperlusensi berbentuk sabit yang berasal dari paru lingula yang relatif masih mengembang di samping lobus atas kiri yang kolaps."
+ },
+ {
+  category:"Abdomen",
+  q:"Pada foto abdomen tegak, tampak udara bebas di bawah kedua hemidiafragma. Temuan ini disebut:",
+  options:["Rigler sign","Coffee bean sign","Pneumoperitoneum","String of pearls sign"],
+  answer:2,
+  explanation:"Udara bebas intraperitoneal di bawah diafragma pada foto tegak menunjukkan pneumoperitoneum dan dapat menandakan perforasi organ berongga."
+ },
+ {
+  category:"Abdomen",
+  q:"Pada foto abdomen, tampak loop kolon yang sangat dilatasi dengan konfigurasi menyerupai biji kopi. Tanda ini paling sering dikaitkan dengan:",
+  options:["Volvulus sigmoid","Ileus paralitik","Appendicitis","Pankreatitis"],
+  answer:0,
+  explanation:"Coffee bean sign merupakan gambaran klasik volvulus sigmoid, meskipun diagnosis perlu dikonfirmasi dengan konteks klinis dan pencitraan yang sesuai."
+ },
+ {
+  category:"Kepala",
+  q:"Pada CT kepala tanpa kontras, tampak koleksi ekstra-aksial berbentuk bikonveks yang dibatasi sutura. Diagnosis yang paling sesuai adalah:",
+  options:["Hematoma subdural","Hematoma epidural","Perdarahan subaraknoid","Kontusio serebri"],
+  answer:1,
+  explanation:"Hematoma epidural umumnya berbentuk bikonveks atau lentiform dan biasanya tidak melintasi sutura kranial."
+ },
+ {
+  category:"Kepala",
+  q:"Pada CT kepala, tampak koleksi ekstra-aksial berbentuk bulan sabit yang dapat melintasi sutura tetapi dibatasi oleh refleksi dural. Temuan ini paling sesuai dengan:",
+  options:["Hematoma epidural","Hematoma subdural","Perdarahan intraventrikular","Kalsifikasi fisiologis"],
+  answer:1,
+  explanation:"Hematoma subdural berbentuk crescent atau bulan sabit dan dapat melintasi sutura, tetapi dibatasi oleh perlekatan dural seperti falx dan tentorium."
+ },
+ {
+  category:"Ekstremitas",
+  q:"Pada radiografi lutut, tampak fragmen tulang kecil di tepi kondilus femur lateral, yang dapat berkaitan dengan cedera pivot-shift. Tanda ini disebut:",
+  options:["Lipohemarthrosis","Segond fracture","Bamboo spine","Pencil-in-cup sign"],
+  answer:1,
+  explanation:"Segond fracture adalah avulsi kortikal kecil di sisi lateral tibia proksimal dan berhubungan kuat dengan cedera ligamen, terutama ACL."
+ },
+ {
+  category:"Tulang belakang",
+  q:"Pada radiografi tulang belakang, tampak sindesmofit marginal yang menjembatani korpus vertebra sehingga menyerupai batang bambu. Gambaran ini dikenal sebagai:",
+  options:["Bamboo spine sign","Ivory vertebra sign","Scotty dog sign","H-sign"],
+  answer:0,
+  explanation:"Bamboo spine merupakan gambaran klasik spondilitis ankilosa akibat pembentukan sindesmofit dan fusi segmen vertebra."
+ }
+];
 
+let current = 0;
+let score = 0;
+let selected = null;
+let answered = false;
+
+function showQuestion() {
+  selected = null;
+  answered = false;
+  const q = questions[current];
+  document.getElementById("category").textContent = q.category;
+  document.getElementById("progress").textContent =
+    "Soal " + (current + 1) + " dari " + questions.length;
+  document.getElementById("question").textContent = q.q;
+  document.getElementById("options").innerHTML = "";
+  document.getElementById("feedback").style.display = "none";
+  document.getElementById("checkBtn").hidden = false;
+  document.getElementById("checkBtn").disabled = false;
+  document.getElementById("nextBtn").hidden = true;
+  document.getElementById("result").hidden = true;
+  q.options.forEach((option, index) => {
+    const label = document.createElement("label");
+    label.className = "option";
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.name = "answer";
+    radio.value = index;
+    radio.style.marginRight = "10px";
+    radio.addEventListener("change", () => selected = index);
+    label.appendChild(radio);
+    label.appendChild(document.createTextNode(
+      String.fromCharCode(65 + index) + ". " + option
+    ));
+    document.getElementById("options").appendChild(label);
+  });
+}
+
+function checkAnswer() {
+  if (selected === null) {
+    alert("Pilih salah satu jawaban terlebih dahulu.");
+    return;
+  }
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const correct = selected === q.answer;
+  if (correct) score++;
+  const feedback = document.getElementById("feedback");
+  feedback.className = correct ? "correct" : "incorrect";
+  feedback.style.display = "block";
+  feedback.innerHTML = "<strong>" +
+    (correct ? "Benar! 🎉" : "Belum tepat.") +
+    "</strong><br>Jawaban: " +
+    String.fromCharCode(65 + q.answer) + ". " +
+    q.options[q.answer] +
+    "<br><br><strong>Pembahasan:</strong
